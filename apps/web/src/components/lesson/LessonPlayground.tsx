@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useI18n } from '@/components/providers';
 import { LessonExercise } from '@/store/courseStore';
+import { CodeCoach } from '@/components/lesson/CodeCoach';
 
 type PlaygroundLanguage = 'html' | 'css' | 'javascript';
 
@@ -252,6 +253,15 @@ export function LessonPlayground({ editorLanguage = 'html', starterCode, exercis
             <div className="flex h-72 items-center justify-center rounded-xl border border-dashed border-white/10 bg-[#060914] p-5 text-center text-sm text-slate-500">{text.empty}</div>
           )}
         </div>
+      </div>
+      <div className="px-4 pb-4">
+        <CodeCoach
+          language={selectedLanguage}
+          code={code}
+          exercise={exercise}
+          checkResults={checkResults}
+          formatText={formatText}
+        />
       </div>
       {exercise && <div className="border-t border-white/10 p-4">
         <h3 className="font-semibold text-white">{text.exercise}</h3>

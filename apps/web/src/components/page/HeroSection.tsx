@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
+import { useState } from 'react';
 import { useI18n } from '@/components/providers';
 
 interface HeroSectionProps {
@@ -8,10 +9,18 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ ctaLink }: HeroSectionProps) {
-  const { t } = useI18n();
+  const { t, tr } = useI18n();
   const reduceMotion = useReducedMotion();
+  const [activeTheme, setActiveTheme] = useState(0);
+  const [activeTab, setActiveTab] = useState<'html' | 'css'>('css');
   const enterFromBelow = reduceMotion ? {} : { opacity: 0, y: 18 };
   const enterTransition = { duration: reduceMotion ? 0 : 0.55, ease: 'easeOut' as const };
+  const themes = [
+    { color: '#22d3ee', label: tr('Moviy', 'Голубой', 'Cyan') },
+    { color: '#a78bfa', label: tr('Binafsha', 'Фиолетовый', 'Violet') },
+    { color: '#fb923c', label: tr('To‘q sariq', 'Оранжевый', 'Orange') },
+  ];
+  const selectedTheme = themes[activeTheme];
 
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#050711]">
@@ -73,27 +82,104 @@ export function HeroSection({ ctaLink }: HeroSectionProps) {
           </motion.div>
 
           <motion.div
-            className="relative min-h-[300px] overflow-hidden rounded-2xl bg-[#070b19] shadow-[0_20px_70px_rgba(0,0,0,0.45)] sm:min-h-[370px] lg:-mr-8 lg:min-h-[410px]"
+          className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#090d1b] shadow-[0_20px_70px_rgba(0,0,0,0.45)] lg:-mr-8"
             initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: reduceMotion ? 0 : 0.7, delay: reduceMotion ? 0 : 0.18 }}
           >
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              src="/videos/hero-coding.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              aria-label="Developer working at a computer"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,20,0.55),transparent_48%,rgba(4,7,20,0.28))]" />
-            <div className="pointer-events-none absolute inset-x-3 top-3 bottom-[4.75rem] border-x border-white/25 sm:inset-x-5 sm:top-4 sm:bottom-20" />
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-[#050711]/65 to-transparent sm:w-4" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-l from-[#050711]/65 to-transparent sm:w-4" />
-            <div className="absolute inset-x-0 bottom-0 flex min-h-14 items-center justify-center bg-[#050711]/[0.98] px-4 py-2.5 text-center sm:min-h-16 sm:px-6 sm:py-3">
-              <span className="text-xs font-semibold leading-5 text-slate-100 sm:text-base">{t('heroFloatingNote')}</span>
+          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-neon-cyan/20 bg-neon-cyan/10 font-mono text-xs font-bold text-neon-cyan" aria-hidden="true">&lt;/&gt;</span>
+              <div>
+                <p className="text-xs font-semibold text-white">CodeHub Lab</p>
+                <p className="text-[10px] text-slate-500">{tr('Portfolio kartasi', 'Карточка портфолио', 'Portfolio card')}</p>
+              </div>
             </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/15 bg-emerald-400/[0.07] px-2.5 py-1 text-[10px] font-medium text-emerald-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              {tr('Jonli natija', 'Живой результат', 'Live preview')}
+            </span>
+          </div>
+
+          <div className="grid gap-3 p-3 sm:gap-4 sm:p-4 xl:grid-cols-[0.88fr_1.12fr]">
+            <div className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#060914]">
+              <div className="flex items-center justify-between border-b border-white/[0.07] px-3 py-2">
+                <div className="flex gap-1.5" aria-hidden="true">
+                  <span className="h-2 w-2 rounded-full bg-rose-400/80" />
+                  <span className="h-2 w-2 rounded-full bg-amber-300/80" />
+                  <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
+                </div>
+                <span className="font-mono text-[9px] text-slate-500">index.html</span>
+              </div>
+              <div className="flex gap-1 border-b border-white/[0.07] px-3 py-2" aria-label={tr('Kod namunasini tanlang', 'Выберите пример кода', 'Choose a code sample')}>
+                {(['html', 'css'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    type="button"
+                    aria-pressed={activeTab === tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`rounded-md px-2.5 py-1 font-mono text-[10px] transition-colors ${activeTab === tab ? 'bg-indigo-400/15 text-indigo-200' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    {tab.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <pre className="min-h-[152px] overflow-x-auto p-3 font-mono text-[10px] leading-[1.8] text-slate-300 sm:min-h-[174px] sm:p-4 sm:text-[11px]" aria-live="polite">
+                {activeTab === 'html' ? (
+                  <code><span className="text-fuchsia-300">&lt;article</span> <span className="text-sky-300">class</span>=<span className="text-amber-200">"profile"</span><span className="text-fuchsia-300">&gt;</span>{'\n'}  <span className="text-fuchsia-300">&lt;h1&gt;</span>{tr('Salom, dunyo!', 'Привет, мир!', 'Hello, world!')}<span className="text-fuchsia-300">&lt;/h1&gt;</span>{'\n'}  <span className="text-fuchsia-300">&lt;button&gt;</span>{tr('Loyihalarim', 'Мои проекты', 'My projects')}<span className="text-fuchsia-300">&lt;/button&gt;</span>{'\n'}<span className="text-fuchsia-300">&lt;/article&gt;</span></code>
+                ) : (
+                  <code><span className="text-fuchsia-300">.profile</span> {'{'}{'\n'}  <span className="text-sky-300">padding</span>: <span className="text-amber-200">24px</span>;{'\n'}  <span className="text-sky-300">border-radius</span>: <span className="text-amber-200">20px</span>;{'\n'}  <span className="text-sky-300">background</span>: <span style={{ color: selectedTheme.color }}>{selectedTheme.color}</span>;{'\n'}{'}'}</code>
+                )}
+              </pre>
+            </div>
+
+            <div className="flex min-h-[208px] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#111727] sm:min-h-[230px]">
+              <div className="flex items-center justify-between border-b border-white/[0.07] px-3 py-2">
+                <span className="text-[10px] font-medium text-slate-300">{tr('Brauzerdagi ko‘rinishi', 'Как это выглядит в браузере', 'How it looks in the browser')}</span>
+                <span className="font-mono text-[9px] text-slate-500">preview</span>
+              </div>
+              <div className="flex flex-1 items-center justify-center bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.12),transparent_70%)] p-4 sm:p-5">
+                <motion.article
+                  key={selectedTheme.color}
+                  initial={reduceMotion ? false : { opacity: 0.7, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.25 }}
+                  className="w-full max-w-[270px] rounded-2xl border border-slate-200/80 bg-white p-4 text-slate-900 shadow-[0_16px_40px_rgba(0,0,0,0.24)] sm:p-5"
+                >
+                  <div className="mb-4 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-slate-950" style={{ backgroundColor: selectedTheme.color }}>CH</div>
+                    <div>
+                      <p className="text-xs font-bold">{tr('Sizning ismingiz', 'Ваше имя', 'Your name')}</p>
+                      <p className="mt-0.5 text-[10px] text-slate-500">{tr('Kelajak dasturchisi', 'Будущий разработчик', 'Future developer')}</p>
+                    </div>
+                  </div>
+                  <p className="text-[11px] leading-5 text-slate-600">{tr('Birinchi sahifamni CodeHub bilan yaratdim.', 'Я создал свою первую страницу вместе с CodeHub.', 'I built my first page with CodeHub.')}</p>
+                  <button type="button" className="mt-4 rounded-lg px-3 py-2 text-[10px] font-semibold text-slate-950 transition-transform hover:scale-[1.03]" style={{ backgroundColor: selectedTheme.color }}>
+                    {tr('Loyihalarim', 'Мои проекты', 'My projects')} <span aria-hidden="true">→</span>
+                  </button>
+                </motion.article>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.08] px-4 py-3 sm:px-5">
+            <p className="text-[10px] text-slate-400">{tr('Rangni bosing — kod va natija birga o‘zgaradi', 'Нажмите на цвет — код и результат изменятся', 'Pick a color — watch the code and result change')}</p>
+            <div className="flex items-center gap-2" aria-label={tr('Loyiha rangini tanlang', 'Выберите цвет проекта', 'Choose a project color')}>
+              {themes.map((theme, index) => (
+                <button
+                  key={theme.color}
+                  type="button"
+                  aria-label={theme.label}
+                  aria-pressed={activeTheme === index}
+                  onClick={() => setActiveTheme(index)}
+                  className={`flex h-7 w-7 items-center justify-center rounded-full transition-transform hover:scale-110 ${activeTheme === index ? 'ring-2 ring-white ring-offset-2 ring-offset-[#090d1b]' : ''}`}
+                  style={{ backgroundColor: theme.color }}
+                >
+                  {activeTheme === index && <span className="text-xs font-bold text-slate-950" aria-hidden="true">✓</span>}
+                </button>
+              ))}
+            </div>
+          </div>
           </motion.div>
         </div>
 

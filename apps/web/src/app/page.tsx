@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { HeroSection } from '@/components/page/HeroSection';
+import { QuickCodeQuiz } from '@/components/page/QuickCodeQuiz';
 import { LanguageCards } from '@/components/page/LanguageCards';
 import { StatsSection } from '@/components/page/StatsSection';
 import { FeatureSection } from '@/components/page/FeatureSection';
@@ -100,8 +101,10 @@ export default function HomePage() {
   return (
     <div>
       <HeroSection
-        ctaLink="/courses"
+        ctaLink="/projects"
       />
+
+      <QuickCodeQuiz />
 
       <section id="languages" className="relative border-b border-white/10 py-10 sm:py-12">
         <div className="mx-auto max-w-[1220px] px-4 sm:px-6 lg:px-8">

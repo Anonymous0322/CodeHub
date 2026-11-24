@@ -5,13 +5,14 @@ import { useAuthStore } from '@/store/authStore';
 import { useCourseStore } from '@/store/courseStore';
 import { toModernUzbek } from '@/lib/utils';
 import { getSupabase } from '@/lib/supabase';
+import { CodeTutorWidget } from '@/components/layout/CodeTutorWidget';
 
 export type Language = 'en' | 'ru' | 'uz';
 
 const translations = {
   en: {
     home: 'Home', courses: 'Courses', roadmap: 'Roadmap', about: 'About', login: 'Log in', signup: 'Sign up',
-    heroBadge: 'CodeHub — from first idea to first project', heroTitleFirst: 'Turn your idea', heroTitleSecond: 'into a real project.', heroText: 'Learn programming from scratch with interactive lessons, in-browser practice, and projects you build yourself.', start: 'Start Learning', explore: 'Explore Courses',
+    heroBadge: 'A coding school where every lesson becomes practice', heroTitleFirst: 'Learn it.', heroTitleSecond: 'Build it yourself.', heroText: 'Try each idea in an interactive coding lesson, see your changes in the browser, and turn what you learn into projects for your portfolio.', start: 'Build a project', explore: 'Explore Courses',
     basics: 'START WITH THE BASICS', choose: 'Choose a language and begin your journey.', viewAll: 'View all courses', why: 'Why CodeHub?', faq: 'Frequently asked questions',
     allCourses: 'All Courses', chooseCourse: 'Choose a programming language and start your journey.', aboutTitle: 'A clearer way to become a developer.',
     heroFloatingNote: 'Never stop learning and growing',
@@ -58,7 +59,7 @@ const translations = {
   },
   ru: {
     home: 'Главная', courses: 'Курсы', roadmap: 'Путь', about: 'О нас', login: 'Войти', signup: 'Регистрация',
-    heroBadge: 'CodeHub — от идеи до первого проекта', heroTitleFirst: 'Превратите идею', heroTitleSecond: 'в свой проект.', heroText: 'Изучайте программирование с нуля: интерактивные уроки, практика в браузере и собственные проекты.', start: 'Начать обучение', explore: 'Смотреть курсы',
+    heroBadge: 'Обучение, где каждый урок — это практика', heroTitleFirst: 'Разберитесь в коде.', heroTitleSecond: 'Создайте своё.', heroText: 'Пробуйте каждую тему в интерактивных уроках, сразу смотрите результат в браузере и собирайте собственные проекты в портфолио.', start: 'Создать проект', explore: 'Смотреть курсы',
     basics: 'НАЧНИТЕ С ОСНОВ', choose: 'Выберите язык и начните свой путь.', viewAll: 'Все курсы', why: 'Почему CodeHub?', faq: 'Частые вопросы',
     allCourses: 'Все курсы', chooseCourse: 'Выберите язык программирования и начните обучение.', aboutTitle: 'Понятный путь к профессии разработчика.',
     heroFloatingNote: 'Никогда не переставайте учиться и расти',
@@ -105,7 +106,7 @@ const translations = {
   },
   uz: {
     home: 'Boş sahifa', courses: 'Kurslar', roadmap: 'Yöl xaritasi', about: 'Biz haqimizda', login: 'Kiriş', signup: 'Röyxatdan ötiş',
-    heroBadge: 'CodeHub — g‘oyadan ilk loyihagacha', heroTitleFirst: 'G‘oyangizni', heroTitleSecond: 'kodga aylantiring.', heroText: 'Dasturlashni noldan o‘rganing: interaktiv darslarda bilim oling, brauzerda mashq qiling va o‘z loyihangizni yarating.', start: 'O‘rganishni boshlash', explore: 'Kurslarni ko‘rish',
+    heroBadge: 'Har bir dars — amaliy kod yozish imkoniyati', heroTitleFirst: 'O‘rganing.', heroTitleSecond: 'O‘zingiz yaratib ko‘ring.', heroText: 'Har bir mavzuni interaktiv darsda sinang, kodingiz natijasini brauzerda darhol ko‘ring va o‘rganganlaringizdan portfolio uchun loyiha yarating.', start: 'Loyiha yaratish', explore: 'Kurslarni ko‘rish',
     basics: 'ASOSLARDAN BOŞLANG', choose: 'Tilni tanlang va örganiş yölingizni boşlang.', viewAll: 'Barça kurslar', why: 'Nega CodeHub?', faq: 'Köp beriladigan savollar',
     allCourses: 'Barça kurslar', chooseCourse: 'Dasturlaş tilini tanlang va örganişni boşlang.', aboutTitle: 'Dasturçi bölişning tuşunarli yöli.',
     heroFloatingNote: 'Har doim örganişni va ösişni davom ettiring',
@@ -310,6 +311,7 @@ export function Providers({ children }: { children: ReactNode }) {
         </aside>
       )}
       {children}
+      <CodeTutorWidget />
     </ThemeContext.Provider>
   );
 }

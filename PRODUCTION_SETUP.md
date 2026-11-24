@@ -26,6 +26,21 @@ The web app is deployed from `apps/web`. Supabase stores authentication, course 
 
    The result should show `role = 'creator'`. Sign out and sign back in to refresh the role in the app; the admin panel is at `/admin`. New registrations receive the `user` role by default. From **Admin → Users**, a creator can assign `creator`, `admin`, or `user` to any account, including changing an existing creator or admin to `user`. If you change your own creator role, you will lose access to the creator panel; if no creator remains, restore one with the SQL Editor. An email address alone never grants admin access.
 
+### Configure the AI tutor
+
+1. Apply `supabase/migrations/20261124000000_ai_tutor_modes.sql` in the SQL Editor before deploying the AI tutor controls.
+2. Generate a 32-byte encryption key locally from `apps/web`:
+
+   ```powershell
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+   Save the result in a password manager. Add it as `AI_SETTINGS_ENCRYPTION_KEY` in `apps/web/.env.local` and Vercel. Keep the existing server-only `SUPABASE_SERVICE_ROLE_KEY` configured as well. Never add either key to a `NEXT_PUBLIC_` variable or commit it. Keep this encryption key unchanged: replacing it makes previously saved provider keys unreadable.
+3. Open **Admin → System settings** (`/admin/settings`) and enter one or both provider keys. Gemini is tried first; if it reports a quota or temporary service limit, the tutor tries OpenAI. Each new question tries Gemini again, so it switches back automatically once Gemini is available. The keys are encrypted before being saved; the app never returns them to the browser.
+4. Choose **Predefined rules** for the free, keyless helper, or **Real AI** to send learner prompts and recent chat context to Gemini/OpenAI. Provider API usage may incur charges under the provider's current pricing and limits.
+
+If the settings endpoint still reports that its database function is missing after the migration runs, refresh Supabase's API schema cache in SQL Editor with `notify pgrst, 'reload schema';`.
+
 ## 2. Run locally
 
 From `apps/web`, copy `.env.example` to `.env.local` and fill in the Supabase values:
@@ -60,7 +75,7 @@ notify pgrst, 'reload schema';
 1. Push the repository to GitHub.
 2. Import it in Vercel and set the **Root Directory** to `apps/web`.
 3. Add `NEXT_PUBLIC_SITE_URL=https://codehub-uz.vercel.app`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY` as Vercel environment variables for Production.
-   Also add `SUPABASE_SERVICE_ROLE_KEY` and a long random `CRON_SECRET` as server-only variables; do not prefix either with `NEXT_PUBLIC_`. Vercel runs `/api/cron/delete-accounts` daily at 03:00 UTC to process account deletion requests after their 30-day recovery period.
+   Also add `SUPABASE_SERVICE_ROLE_KEY`, a long random `CRON_SECRET`, and `AI_SETTINGS_ENCRYPTION_KEY` as server-only variables; do not prefix them with `NEXT_PUBLIC_`. Vercel runs `/api/cron/delete-accounts` daily at 03:00 UTC to process account deletion requests after their 30-day recovery period.
 4. Deploy. Vercel runs the Next.js build and creates preview deployments for branches and pull requests.
 5. In Vercel **Settings → Domains**, confirm that `codehub-uz.vercel.app` is attached to this project. After changing `NEXT_PUBLIC_SITE_URL`, redeploy so Next.js metadata uses the new canonical base URL.
 6. In Supabase **Authentication → URL Configuration**, update Site URL and the redirect allow-list as in step 4. In **Authentication → Providers → Google/GitHub**, keep the provider callback URL shown by Supabase (usually `https://<project-ref>.supabase.co/auth/v1/callback`) in the provider's authorized redirect URI list; changing the website domain does not normally change this Supabase callback. Check any email templates for hard-coded links to the old domain.
