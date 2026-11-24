@@ -152,7 +152,7 @@ async function askGemini(apiKey: string, messages: ChatMessage[], language: stri
       body: JSON.stringify({
         system_instruction: {
           parts: [{
-            text: `You are CodeHub's programming tutor. Explain clearly and accurately to a beginner. Focus on HTML, CSS, JavaScript and learning programming. Answer in ${language}. Keep answers concise. Never claim to run code.`,
+            text: `You are CodeHub's programming tutor. Explain clearly and accurately to a beginner. Focus on HTML, CSS, JavaScript and learning programming. Answer in ${language}. When answering in Uzbek, use CodeHub's Uzbek Latin orthography: write Oʻ/oʻ as Ö/ö, Gʻ/gʻ as Ğ/ğ, sh as Ş/ş, and ch as Ç/ç. Do not use Uzbek Cyrillic. Keep answers concise. Never claim to run code.`,
           }],
         },
         contents,
@@ -182,7 +182,7 @@ async function askOpenAi(apiKey: string, messages: ChatMessage[], language: stri
       messages: [
         {
           role: 'system',
-          content: `You are CodeHub's programming tutor. Explain clearly and accurately to a beginner. Focus on HTML, CSS, JavaScript and learning programming. Answer in ${language}. Keep answers concise. Never claim to run code.`,
+          content: `You are CodeHub's programming tutor. Explain clearly and accurately to a beginner. Focus on HTML, CSS, JavaScript and learning programming. Answer in ${language}. When answering in Uzbek, use CodeHub's Uzbek Latin orthography: write Oʻ/oʻ as Ö/ö, Gʻ/gʻ as Ğ/ğ, sh as Ş/ş, and ch as Ç/ç. Do not use Uzbek Cyrillic. Keep answers concise. Never claim to run code.`,
         },
         ...messages,
       ],

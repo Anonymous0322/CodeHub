@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useI18n } from '@/components/providers';
+import { getCodeTutorRuleReply, normalizeUzbekLatin } from '@/lib/codeTutorRules';
 
 interface ChatMessage {
   id: number;
@@ -31,7 +32,11 @@ function RobotCapIcon({ className = 'h-7 w-7' }: { className?: string }) {
 }
 
 export function CodeTutorWidget() {
-  const { language, tr } = useI18n();
+  const { language, tr: siteTr } = useI18n();
+  const tr = (uzbek: string, russian: string, english: string) => {
+    if (language === 'uz') return normalizeUzbekLatin(uzbek);
+    return siteTr(uzbek, russian, english);
+  };
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -78,6 +83,9 @@ export function CodeTutorWidget() {
   }, [messages, open]);
 
   const getReply = (rawMessage: string): CoachReply => {
+    const ruleReply = getCodeTutorRuleReply(rawMessage, language);
+    if (ruleReply) return ruleReply;
+
     const message = rawMessage.toLowerCase();
     if (/\bconst\b/.test(message) && /(?:^|[;\n])\s*[a-z_$][\w$]*\s*=(?!=|>)/.test(message.replace(/\bconst\s+[a-z_$][\w$]*\s*=/, ''))) {
       return {
@@ -150,39 +158,58 @@ export function CodeTutorWidget() {
     setSending(true);
     setSendError('');
     try {
-      const settingsResponse = await fetch('/api/ai/tutor', { cache: 'no-store' });
-      if (!settingsResponse.ok) throw new Error(tr(
-        'AI Ustoz sozlamalarini yuklab bo‘lmadi. Keyinroq qayta urinib ko‘ring.',
-        'Не удалось загрузить настройки наставника. Попробуйте позже.',
-        'Could not load tutor settings. Please try again later.',
-      ));
-      const settings = await settingsResponse.json() as { mode: 'rules' | 'ai' };
-      setMode(settings.mode);
-
       let reply: CoachReply;
-      if (settings.mode === 'ai') {
-        const response = await fetch('/api/ai/tutor', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: text,
-            language,
-            history: messages
-              .filter(message => message.role === 'user' || message.role === 'assistant')
-              .map(({ role, text: messageText }) => ({ role, text: messageText })),
-          }),
-        });
-        const result = await response.json() as { reply?: string; error?: string };
-        if (!response.ok || !result.reply) {
-          throw new Error(result.error || tr(
-            'AI Ustoz javob bera olmadi. Keyinroq qayta urinib ko‘ring.',
-            'Наставник не смог ответить. Попробуйте позже.',
-            'The tutor could not answer. Please try again later.',
+      let selectedMode: 'rules' | 'ai' = 'rules';
+      let settingsUnavailable = false;
+      try {
+        const settingsResponse = await fetch('/api/ai/tutor', { cache: 'no-store' });
+        if (!settingsResponse.ok) throw new Error('AI settings endpoint unavailable.');
+        const settings = await settingsResponse.json() as { mode: 'rules' | 'ai' };
+        selectedMode = settings.mode;
+      } catch {
+        settingsUnavailable = true;
+      }
+      setMode(selectedMode);
+
+      if (selectedMode === 'ai') {
+        try {
+          const response = await fetch('/api/ai/tutor', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: text,
+              language,
+              history: messages
+                .filter(message => message.role === 'user' || message.role === 'assistant')
+                .map(({ role, text: messageText }) => ({ role, text: messageText })),
+            }),
+          });
+          const result = await response.json() as { reply?: string; error?: string };
+          if (!response.ok || !result.reply) {
+            throw new Error(result.error || tr(
+              'AI Ustoz javob bera olmadi. Keyinroq qayta urinib ko‘ring.',
+              'Наставник не смог ответить. Попробуйте позже.',
+              'The tutor could not answer. Please try again later.',
+            ));
+          }
+          reply = { text: language === 'uz' ? normalizeUzbekLatin(result.reply) : result.reply };
+        } catch {
+          reply = getReply(text);
+          setSendError(tr(
+            'Haqiqiy AI hozir ishlamayapti, shuning uchun qoidalarga asoslangan Ustoz javob berdi.',
+            'Настоящий ИИ сейчас недоступен, поэтому ответил наставник на основе правил.',
+            'Real AI is unavailable, so the rules-based tutor answered instead.',
           ));
         }
-        reply = { text: result.reply };
       } else {
         reply = getReply(text);
+        if (settingsUnavailable) {
+          setSendError(tr(
+            'AI sozlamalariga ulanib bo‘lmadi. API kalitisiz qoidaviy yordamchi ishlashda davom etadi.',
+            'Не удалось загрузить настройки ИИ. Помощник по правилам продолжит работу без API-ключа.',
+            'Could not load AI settings. The rules-based helper will keep working without an API key.',
+          ));
+        }
       }
 
       setMessages(current => [
